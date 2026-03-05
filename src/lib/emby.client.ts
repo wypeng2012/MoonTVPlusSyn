@@ -426,15 +426,17 @@ export class EmbyClient {
     }
   }
 
-  getImageUrl(itemId: string, imageType: 'Primary' | 'Backdrop' | 'Logo' = 'Primary', maxWidth?: number, proxyToken?: string): string {
-    // 如果启用了代理播放且提供了 token，返回代理 URL
-    if (this.proxyPlay && proxyToken) {
+  getImageUrl(itemId: string, imageType: 'Primary' | 'Backdrop' | 'Logo' = 'Primary', maxWidth?: number, proxyToken?: string, forceDirectUrl = false): string {
+    // 如果启用了代理播放且不是强制获取直接URL，返回代理 URL
+    if (this.proxyPlay && !forceDirectUrl) {
+      // 使用固定的token占位符，实际验证在服务端进行
+      const subscribeToken = proxyToken || 'proxy';
       const params = new URLSearchParams();
       params.set('imageType', imageType);
       if (maxWidth) params.set('maxWidth', maxWidth.toString());
       if (this.embyKey) params.set('embyKey', this.embyKey);
 
-      return `/api/emby/image/${proxyToken}/${itemId}?${params.toString()}`;
+      return `/api/emby/image/${subscribeToken}/${itemId}?${params.toString()}`;
     }
 
     // 否则返回直连 URL
